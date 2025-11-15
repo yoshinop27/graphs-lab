@@ -4,6 +4,8 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Set;
+import java.util.HashSet;
 
 // Record class for edge
 record edge<T>(T v1, T v2) {};
@@ -86,13 +88,59 @@ class Graph <T> {
         }
         return edges;
     }
+
+    /**
+     * 
+     * Recursive dfs search of our graph for a walk of length <= n from v1 to v2
+     * @param v1 starting vertex
+     * @param v2 target vertex
+     * @param n degrees of seperation
+     * @param s set of see vertices
+     * @return true if there exists walk of length <= n
+     */
+    public boolean areConnectedH(T v1, T v2, int n, Set<T> s) {
+
+        // get adjacency list of v1
+        List<T> adjacents = adjacencyList.get(v1);
+
+        // Check for equality
+        if (v1.equals(v2)) return true;
+        // check for neighbors
+        if (adjacents == null || adjacents.size() == 0) return false;
+        // Base Case:
+        if (n == 0) return false;
+
+        // Update seen set
+        s.add(v1);
+
+        // loop through each neighbor, run dfs recursively
+        for (T neighbor : adjacents){
+            if (!s.contains(neighbor)){
+                if(areConnectedH(neighbor, v2, n-1, s)) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Husk for helper function
+     * @param v1 starting vertex
+     * @param v2 target vertex
+     * @param n degrees of seperation
+     * @return true if there exists walk of length <= n
+     */
+    public boolean areConnected(T v1, T v2, int n){
+        // Create set 
+        Set<T> seen = new HashSet<>();
+        // Run dfs search
+        return areConnectedH(v1, v2, n, seen);
+    }
 }
 
 public class SocialNetworks {
     public static void main(String[] args) {
         // Check if the user has provided a filename
-        if (args.length != 1) {
-            System.out.println("Usage: java SocialNetworks <filename>");
+        if (args.length != 4) {
             System.exit(1);
         }
         // Get the filename from the command line arguments
@@ -110,5 +158,11 @@ public class SocialNetworks {
             System.out.println("Error reading file: " + e.getMessage());
             System.exit(1);
         }
+
+        // Run areConnected function
+        boolean res = graph.areConnected(args[1], args[2], Integer.parseInt(args[3]));
+        System.out.printf(
+    "%s and %s are connected within %d degrees of seperation: %b", 
+            args[1], args[2], Integer.parseInt(args[3]), res);
     }
 }
