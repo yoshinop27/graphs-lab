@@ -1,6 +1,9 @@
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 // Record class for edge
 record edge<T>(T v1, T v2) {};
@@ -13,7 +16,7 @@ class Graph <T> {
     int doubleEdges;
 
     // Graph Constructor always start empty
-    public Graph(int numVertices) {
+    public Graph() {
         this.doubleEdges = 0;
         this.adjacencyList = new HashMap<>();
     } 
@@ -86,4 +89,26 @@ class Graph <T> {
 }
 
 public class SocialNetworks {
+    public static void main(String[] args) {
+        // Check if the user has provided a filename
+        if (args.length != 1) {
+            System.out.println("Usage: java SocialNetworks <filename>");
+            System.exit(1);
+        }
+        // Get the filename from the command line arguments
+        String filename = args[0];
+        Graph<String> graph = new Graph<>();
+        // Read the file
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            // Add edges to adjacency list
+            while ((line = reader.readLine()) != null) {
+                String[] vertices = line.split(" ");
+                graph.add(vertices[0], vertices[1]);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+            System.exit(1);
+        }
+    }
 }
